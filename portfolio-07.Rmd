@@ -2,7 +2,7 @@
 title: "Portfolio 7"
 author: "Ben Hardin"
 date: "2023-04-06"
-output: github_document
+output: html_document
 ---
 
 ## Intro
@@ -11,25 +11,42 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(truncnorm)
 ```
 
 ```{r distributions}
 hexaco_norm <- data.frame(matrix(ncol = 0, nrow = 1126))
 
-hexaco_norm$hh <- rnorm(1126, 3.23, .66)
+set.seed(1998)
 
-hexaco_norm$em <- rnorm(1126, 3.36, .7)
+hexaco_norm$hh <- rtruncnorm(1126, 1, 5, 3.23, .66)
 
-hexaco_norm$ex <- rnorm(1126, 3.51, .62)
+hexaco_norm$em <- rtruncnorm(1126, 1, 5, 3.36, .7)
 
-hexaco_norm$ag <- rnorm(1126, 3.10, .63)
+hexaco_norm$ex <- rtruncnorm(1126, 1, 5, 3.51, .62)
 
-hexaco_norm$cn <- rnorm(1126, 3.47, .61)
+hexaco_norm$ag <- rtruncnorm(1126, 1, 5, 3.10, .63)
 
-hexaco_norm$op <- rnorm(1126, 3.49, .67)
+hexaco_norm$cn <- rtruncnorm(1126, 1, 5, 3.47, .61)
+
+hexaco_norm$op <- rtruncnorm(1126, 1, 5, 3.49, .67)
 ```
 
 ```{r plot}
+library(rlang)
+
+density_plot <- function(data, x, color, ymax, xmin, xmax, alpha) {
+  ggplot2::ggplot(data = data, aes({{x}}))+
+    geom_density(color = "black", fill = color, linewidth = 0.9, bw = 0.3, alpha = alpha)+
+    theme_classic()+
+    scale_y_continuous(
+      limits = c(0, ymax),
+      expand = c(0, 0))+
+    scale_x_continuous(
+      limits = c(xmin, xmax),
+      expand = c(0, 0.01))
+}
+
 density_plot(hexaco_norm, hh, "gold1", 0.6, 1, 5, 0.5)
 density_plot(hexaco_norm, em, "firebrick1", 0.6, 1, 5, 0.5)
 density_plot(hexaco_norm, ex, "palegreen2", 0.6, 1, 5, 0.5)
@@ -40,24 +57,41 @@ density_plot(hexaco_norm, op, "purple1", 0.6, 1, 5, 0.5)
 
 ```{r quantilies}
 hexaco_norm$score <- rep(3.4, times = 1126)
+hexaco_norm$Your_Score <- ecdf(hexaco_norm$hh)(hexaco_norm$score)
+
+hexaco_norm <- hexaco_norm %>%
+  mutate(Your_Score = round(Your_Score*100))
 ```
 
 ```{r more-plot}
-hh_plot <- ggplot(hexaco_norm, aes(x = hh))+
-  geom_segment(aes(x = score, y = 0, xend = score, yend = 0.7))+
-  geom_point(aes(x = score, y = 0.7, label = score))+
-  geom_density(color = "goldenrod4", fill = "#FFE030", linewidth = 0.9, bw = 0.3)+
-    theme_classic()+
+hhplot <- ggplot(hexaco_norm, aes(x = hh))+
+  geom_density(color = "goldenrod4", fill = "gold1", linewidth = 0.9, bw = 0.3, alpha = 0.7)+
+  geom_segment(aes(x = quantile(hh, probs = 0.5), y = 0, xend = quantile(hh, probs = 0.5), yend = 0.56, text = "Average"), color = "goldenrod4", linetype = "dashed", linewidth = 0.4, alpha = 0.5)+
+  geom_segment(aes(x = quantile(hh, probs = 0.01), y = 0.6, xend = quantile(hh, probs = 0.99), yend = 0.6), linewidth = 1, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.99), y = 0.6, text = "99th percentile"), size = 1.5, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.01), y = 0.6, text = "1st percentile"), size = 1.5, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.95), y = 0.6, text = "95th percentile"), size = 2, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.05), y = 0.6, text = "5th percentile"), size = 2, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.80), y = 0.6, text = "80th percentile"), size = 2.5, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.20), y = 0.6, text = "20th percentile"), size = 2.5, color = "goldenrod3")+
+  geom_point(aes(x = quantile(hh, probs = 0.5), y = 0.6, text = "Average"), size = 4, color = "goldenrod3")+
+  geom_segment(aes(x = score, y = 0, xend = score, yend = 0.6), color = "black", linewidth = 1)+
+  geom_point(aes(x = score, y = 0.6, text = Your_Score), color = "black", size = 4.5)+
+  geom_text(aes(x = score, y = 0.63, label = "Your Score"))+
+    theme_void()+
     scale_y_continuous(
-      limits = c(0, 0.75),
-      expand = c(0, 0))+
-    scale_x_continuous(
-      limits = c(1, 5),
-      expand = c(0, 0.01))
+      limits = c(0, 0.7),
+      expand = c(0, 0))
 ```
 
 ```{r interactive}
 library(plotly)
 
-ggplotly(hh_plot, tooltip = c("label"))
+ggplotly(hhplot, tooltip = "text")
+```
+
+## Making 6 graphs for a real data
+
+```{r data}
+real_data <- read.csv("data/hexaco scores.csv")
 ```
