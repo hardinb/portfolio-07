@@ -356,7 +356,7 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Agreeableness")
   
-  a_output <- ggplotly(agplot, tooltip = "text")
+ggplotly(agplot, tooltip = "text")
   
   #extraversion
   explot <- ggplot(hexaco_norm, aes(x = ex))+
@@ -379,7 +379,7 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Extraversion")
   
-  ex_output <- ggplotly(explot, tooltip = "text")
+ggplotly(explot, tooltip = "text")
   
   #honesty-humility
   hhplot <- ggplot(hexaco_norm, aes(x = hh))+
@@ -402,7 +402,7 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Honesty-Humility")
   
-  h_output <- ggplotly(hhplot, tooltip = "text")
+ggplotly(hhplot, tooltip = "text")
   
   #conscientiousness
   cnplot <- ggplot(hexaco_norm, aes(x = cn))+
@@ -425,7 +425,7 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Conscientiousness")
   
-  c_output <- ggplotly(cnplot, tooltip = "text")
+ggplotly(cnplot, tooltip = "text")
   
   #emotionality
   emplot <- ggplot(hexaco_norm, aes(x = em))+
@@ -448,7 +448,7 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Emotionality")
   
-  em_output <- ggplotly(emplot, tooltip = "text")
+ggplotly(emplot, tooltip = "text")
   
   #openness
   opplot <- ggplot(hexaco_norm, aes(x = op))+
@@ -471,14 +471,11 @@ trait_output <- function(data, value){
       expand = c(0, 0))+
     labs(title = "Openness to Experience")
   
-  o_output <- ggplotly(opplot, tooltip = "text")
-  
-  #gathering and presenting our plots
-  out <- list(a_output, ex_output, h_output, c_output, em_output, o_output)
-  print(out)
+ggplotly(opplot, tooltip = "text")
 }
 ```
 
 ```{r test-fun, warning=FALSE}
 trait_output(real_data, 11)
 ```
+
