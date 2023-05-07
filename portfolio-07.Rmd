@@ -7,12 +7,17 @@ output: html_document
 
 ## Intro
 
+As an extra incentive for completing one of our studies, we planning to provide people with personalized feedback on their personality based on their responses to the HEXACO-60 questionnaire. In particular, we'll tell people how their scores on the six traits compare to some norming data provided by the authors of the HEXACO at hexaco.org. For this portfolio, I'd like to try making some visualizations to be used in this feedback.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(truncnorm)
 ```
+
+### Making norming densities
+
+Using the means and standard deviations from Ashton et al.'s norming data, I wanted to generate some normally distruted data that should roughly approximate the distribution of their study.
 
 ```{r distributions}
 hexaco_norm <- data.frame(matrix(ncol = 0, nrow = 1126))
@@ -31,6 +36,10 @@ hexaco_norm$cn <- rtruncnorm(1126, 1, 5, 3.47, .61)
 
 hexaco_norm$op <- rtruncnorm(1126, 1, 5, 3.49, .67)
 ```
+
+Then, I want to plot these as density distributions. Because I make a lot of density distributions, and making them the way I like requires quite a bit of code, I decided I'd go ahead and write a function that does a lot of the ggplotting for me to make this process somewhat more efficient.
+
+Below are the 6 distributions of scores we generated for each of the 6 traits based on Ashton et al.'s norming data.
 
 ```{r plot}
 library(rlang)
@@ -54,6 +63,7 @@ density_plot(hexaco_norm, ag, "steelblue1", 0.6, 1, 5, 0.5)
 density_plot(hexaco_norm, cn, "orange1", 0.7, 1, 5, 0.5)
 density_plot(hexaco_norm, op, "purple1", 0.6, 1, 5, 0.5)
 ```
+Now I want to try making an interactive plot that would show the percentile score (based on the norming data) for a given score on one of the HEXACO traits and graphically display how it compares to various percentiles. For this example, I used a hypothetical person who scores 3.4 out of a possible 5 mean score for Honesty-Humility (HH). This score is then converted to a percentile score and plotted against the distribution we generated for HH.
 
 ```{r quantilies}
 hexaco_norm$score <- rep(3.4, times = 1126)
@@ -90,7 +100,9 @@ library(plotly)
 ggplotly(hhplot, tooltip = "text")
 ```
 
-## Making 6 graphs for a real data
+Alright! Now that we got that to work, let's try making a full personality profile for all 6 traits using existing data from a real participant in a past study.
+
+## Making 6 graphs for a real datapoint
 
 ```{r data}
 real_data <- read.csv("data/hexaco scores.csv")
@@ -280,8 +292,13 @@ emplot <- ggplot(hexaco_norm, aes(x = em))+
 
 ggplotly(emplot, tooltip = "text")
 ```
+It worked!
 
 ## Making the process semi-automatic
+
+I'm interested in trying to make this process more or less automatic so that it can be performed easily in a short amount of time for lots of participants. My first approach was to just stick everything I had just done into a function. This almost works, except the function will ultimately only spit out one of the 6 plots we want.
+
+After this, I decided to implement things a slightly different way by writing a slightly different function and implementing it into an R Markdown document that, when knit, will automatically generate an html file with a HEXACO report for the person specified. I can add some more explanatory text to this file, and then it will be about ready to go for our purposes!
 
 ```{r fun, include=FALSE}
 # function traits --------------------------------------------------------------

@@ -1,5 +1,5 @@
 ---
-title: "Personality Report"
+title: "Your Personality Report"
 output: html_document
 ---
 
@@ -78,8 +78,6 @@ hexaco_norm <- read.csv("data/hexaco_norm.csv")
 
 ### If this works, you should have a dataset named hexaco_norm. Now, knit this entire document to create a personalized hexaco score report.
 ```
-
-# Agreeableness
 
 Your score on agreeableness shows that you are in the `r unique(hexaco_norm$ag_qscore)`th percentile for agreeableness. This means that you scored higher than `r unique(hexaco_norm$ag_qscore)`% of people on the dimension of agreeableness.
 
@@ -228,7 +226,7 @@ ggplotly(emplot, tooltip = "text")
 
 # Openness to Experience
 
-Your score on openness to experience shows that you are in the `r unique(hexaco_norm$ag_qscore)`th percentile for openness to experience. This means that you scored higher than `r unique(hexaco_norm$ag_qscore)`% of people on the dimension of openness to experience.
+Your score on openness to experience shows that you are in the `r unique(hexaco_norm$op_qscore)`th percentile for openness to experience. This means that you scored higher than `r unique(hexaco_norm$op_qscore)`% of people on the dimension of openness to experience.
 
 ```{r open-plot, echo = F, warning = F}
 opplot <- ggplot(hexaco_norm, aes(x = op))+
